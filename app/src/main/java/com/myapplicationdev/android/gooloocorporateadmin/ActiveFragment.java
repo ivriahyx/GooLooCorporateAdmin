@@ -1,0 +1,437 @@
+package com.myapplicationdev.android.gooloocorporateadmin;
+
+
+import android.Manifest;
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationChannelGroup;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TimePickerDialog;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.pdf.PdfDocument;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Environment;
+import android.os.SystemClock;
+import android.preference.PreferenceManager;
+import android.provider.DocumentsContract;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.PermissionChecker;
+import android.support.v7.widget.SwitchCompat;
+import android.util.Log;
+import android.view.ContextMenu;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.Switch;
+import android.widget.TextView;
+import android.widget.TimePicker;
+import android.widget.Toast;
+import android.widget.ToggleButton;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.myapplicationdev.android.gooloocorporateadmin.R;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.net.URI;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+
+import static android.content.Context.CLIPBOARD_SERVICE;
+import static android.content.Context.NOTIFICATION_SERVICE;
+
+
+public class ActiveFragment extends Fragment {
+
+    ListView lv_active;
+    ArrayList<Order> al = new ArrayList<Order>();
+    OrderAdapter aa;
+
+    TextView tvOrderRef;
+    ImageView ivpdf;
+
+    String folderLocation;
+
+    ClipboardManager myClipboard;
+    public ActiveFragment(){ }
+
+    public static ActiveFragment newInstance(){
+        ActiveFragment fragment = new ActiveFragment();
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View rootView = inflater.inflate(R.layout.fragment_active, container, false);
+        ViewOrdersActivity activity = (ViewOrdersActivity) getActivity();
+
+
+        //file
+        int permissionCheck_Write= ContextCompat.checkSelfPermission(
+                getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permissionCheck_Write != PermissionChecker.PERMISSION_GRANTED){
+            Toast.makeText(getActivity(), "Permission not granted.", Toast.LENGTH_SHORT).show();
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
+           getActivity().finish();
+        }
+
+        folderLocation = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MyFolder";
+
+        File folder = new File(folderLocation);
+        if (folder.exists() == false) {
+            boolean result = folder.mkdir();
+            if (result == true) {
+                Log.d("File Read/Write", "Folder created");
+            }
+        }
+
+        //
+
+        String email = activity.getEmail();
+
+        Log.d("ActiveFragment","email: "+email);
+
+        tvOrderRef = (TextView)rootView.findViewById(R.id.textViewOrderRef1);
+        ivpdf = (ImageView)rootView.findViewById(R.id.ivpdf);
+
+        lv_active = (ListView)rootView.findViewById(R.id.lv_active);
+
+        aa = new OrderAdapter(getActivity(), R.layout.row_active_orders, al);
+        aa.clear();
+        lv_active.setAdapter(aa);
+
+        registerForContextMenu(lv_active);
+
+
+        //getCompany
+        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        String urlcompany ="http://ivriah.000webhostapp.com/gooloo/gooloo/getCompanyname.php?email="+email;
+
+        // Request a json response from the provided URL.
+        StringRequest stringcompanyRequest = new StringRequest(Request.Method.GET, urlcompany,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            Log.d("ActiveFragmentLine112", response.toString());
+
+                            JSONObject jsonObject = new JSONObject(response.toString());
+                            //Log.d("ActiveFragment","JSONObject response : "+ jsonArray.getJSONObject(0));
+                            String id = jsonObject.getString("id");
+                            Log.d("item", jsonObject.getString("id"));
+                            String company_name = jsonObject.getString("company_name");
+                            Log.d("item", jsonObject.getString("company_name"));
+
+                            String[] company = {id, company_name};
+
+                            //test array
+                            for (int x = 0; x < company.length; x++) {
+                                Log.d("itemarray", company[x]);
+                            }
+
+                            //getOrders
+                            RequestQueue queue = Volley.newRequestQueue(getActivity());
+                            String urlOrder ="http://ivriah.000webhostapp.com/gooloo/gooloo/retrieveOrderForCustomer.php?company="+company_name;
+
+                            // Request a json response from the provided URL.
+                            StringRequest stringRequest = new StringRequest(Request.Method.GET, urlOrder,
+                                    new Response.Listener<String>() {
+                                        @Override
+                                        public void onResponse(String response) {
+                                            try {
+                                                if(response.toString()!=null){
+                                                    Log.d("ActiveFragmentLine149",response.toString());
+                                                    JSONArray jsonArray = new JSONArray(response.toString());
+                                                    for (int i=0;i<jsonArray.length();i++){
+                                                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                                                        String orderId = jsonObject.getString("id");
+                                                        String order_ref = jsonObject.getString("order_ref");
+                                                        String firstName = jsonObject.getString("first_name");
+                                                        String lastName = jsonObject.getString("last_name");
+                                                        String finalPrice = jsonObject.getString("final_price");
+
+                                                        Log.d("order","id: "+orderId+" orderRef: "+order_ref+" firstName: "+firstName+" lastName: "+lastName+" finalprice: "+finalPrice);
+                                                        Order order = new Order(Integer.parseInt(orderId),order_ref, firstName, lastName, Double.parseDouble(finalPrice));
+                                                        al.add(order);
+
+                                                        //test array
+                                                        for(int x =0; x < al.size(); x++){
+                                                            Log.d("itemarrayActive", ""+al.get(x).getOrderRef());
+                                                        }
+
+                                                    }
+
+                                                }
+
+
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                                Log.d("ActiveFragment","Unsuccessful retriever");
+                                            }
+                                            aa.notifyDataSetChanged();
+
+                                        }
+                                    }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    Log.d("item", error.toString()+"");
+                                    Toast toast = Toast.makeText(getActivity(), ""+error.toString(), Toast.LENGTH_LONG);
+                                    toast.show();
+                                }
+                            });
+
+                            // Add the request to the RequestQueue.
+                            queue.add(stringRequest);
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("ActiveFragment", error.toString()+"");
+                Toast toast = Toast.makeText(getActivity(), ""+error.toString(), Toast.LENGTH_LONG);
+                toast.show();
+            }
+        });
+
+        // Add the request to the RequestQueue.
+        queue.add(stringcompanyRequest);
+
+             return rootView;
+    }
+
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+    }
+    //Context Menu
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        if (v.getId() == R.id.lv_active) {
+            getActivity().getMenuInflater().inflate(R.menu.menu_active_order, menu);
+        }
+    }
+    @Override
+    public boolean onContextItemSelected(final MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_download) {
+            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+            final int index = info.position;
+            Log.d("activeOrderId",""+al.get(index).getOrderId());
+            final int orderId = al.get(index).getOrderId();
+            final String firstName = al.get(index).getFirstName();
+            final String lastName = al.get(index).getLastName();
+            final double finalPrice = al.get(index).getFinalPrice();
+            final String orderRef = al.get(index).getOrderRef();
+           RequestQueue queue = Volley.newRequestQueue(getActivity());
+            //String url ="https://ivriah.000webhostapp.com/gooloo/gooloo/LoginCorporateAdmin.php?email=" + email;
+            String url ="http://ivriah.000webhostapp.com/gooloo/gooloo/getOrderDetails.php?orderId=" + orderId;
+
+            // Request a json response from the provided URL.
+            StringRequest orderDetailsRequest = new StringRequest(Request.Method.GET, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            try {
+
+                                JSONArray jsonArray = new JSONArray(response.toString());
+                                Log.d("ActiveOrderDetails","JSONObj response : "+response);
+
+                                for (int i=0;i<jsonArray.length();i++) {
+                                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                                    String orderDetailId = jsonObject.getString("id");
+                                    String itemName = jsonObject.getString("item_name");
+                                    String unitPrice = jsonObject.getString("price");
+                                    createPDF("Order created by: "+firstName+" "+lastName+"\n Items: "+itemName+"\nUnit Price: "+unitPrice+"\nTotal Price: "+finalPrice,""+orderRef);
+                                }
+
+
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                Toast toast = Toast.makeText(getActivity(), "Unsuccessful", Toast.LENGTH_LONG);
+                                toast.show();
+                                Log.d("ActiveOrderDetails","Unsuccessful");
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.d("ActiveOrderDetails", error.toString()+"");
+                    Toast toast = Toast.makeText(getActivity(), ""+error.toString(), Toast.LENGTH_LONG);
+                    toast.show();
+                }
+            });
+
+            // Add the request to the RequestQueue.
+            queue.add(orderDetailsRequest);
+
+
+            //openPDF(orderRef);
+
+
+
+            return true;
+        }else if (id == R.id.action_submit_order){
+            //Create the Dialog Builder
+            AlertDialog.Builder myBuilder = new AlertDialog.Builder(getActivity());
+
+            //set the dialog details
+            myBuilder.setTitle("Submit Order");
+            myBuilder.setMessage("Would you like to submit this order?");
+
+            //User are unable to exit dialog simply by clicking anywhere outside the dialog box when set to false
+            myBuilder.setCancelable(false);
+
+            // Configure the 'positive' button for button dialog
+            myBuilder.setPositiveButton("Submit", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    RequestQueue queue = Volley.newRequestQueue(getActivity());
+                    //String url ="http://ivriah.000webhostapp.com/gooloo/gooloo/submitOrder.php?orderRef="+"GL20160314000004"+"&customerId="+"4355";
+                    String url ="http://10.0.2.2/gooloo/submitOrder.php?orderRef="+"GL20160314000004"+"&customerId="+"4355";
+
+                    // Request a json response from the provided URL.
+                    StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                            new Response.Listener<String>() {
+                                @Override
+                                public void onResponse(String response) {
+                                    // Display the first 500 characters of the response string.
+                                    Toast.makeText(getActivity(), ""+response, Toast.LENGTH_SHORT).show();
+                                }
+                            }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Toast.makeText(getActivity(), "Please try again.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+// Add the request to the RequestQueue.
+                    queue.add(stringRequest);
+                }
+            });
+            // Configure the 'neutral' button
+            myBuilder.setNeutralButton("Cancel", null);
+
+            //create and display dialog
+            AlertDialog myDialog = myBuilder.create();
+            myDialog.show();
+
+            return true;
+        }
+        else{
+            getActivity().finish();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+    //
+
+    public void createPDF(String msg,String filename){
+        //write
+        //Code for file writing
+        File targetFile = new File(folderLocation,filename+".pdf");
+
+        try {
+            File targetFile_I = new File(folderLocation, filename+".pdf");
+            FileWriter writer_I = new FileWriter(targetFile_I, true);
+            writer_I.write(msg);
+            writer_I.flush();
+            writer_I.close();
+        } catch (Exception e) {
+            Toast.makeText(getActivity(), "Failed to write!", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+    }
+    public void openPDF(String filename){
+//read
+        //Code for file reading
+        File targetFile = new File(folderLocation,filename+".pdf");
+        if(targetFile.exists() == true){
+            String data="";
+            try{
+                FileReader reader = new FileReader(targetFile);
+                BufferedReader br = new BufferedReader(reader);
+
+                String line = br.readLine();
+                while (line != null){
+                    data += line +"\n";
+                    line = br.readLine();
+                }
+                br.close();
+                reader.close();
+            }catch (Exception e){
+                Toast.makeText(getActivity(), "Failed to read!", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+            }
+            Log.d("Content",data);
+
+        }
+    }
+
+}

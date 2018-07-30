@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">GooLooCorporateAdmin</string>
+    <string name="Sign_up"><u>Sign up</u></string>
+    <string name="Forget_password"><u>Forget Password</u></string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="drawer_open">Open</string>
+    <string name="drawer_close">Close</string>
+    <string name="action_team">View Team</string>
+    <string name="action_orders">View Orders</string>
+    <string-array name="roles">
+        <item>Member</item>
+        <item>Corporate Admin</item>
+    </string-array>
+</resources>
