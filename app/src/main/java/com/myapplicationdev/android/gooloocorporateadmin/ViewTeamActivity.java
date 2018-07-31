@@ -56,8 +56,8 @@ public class ViewTeamActivity extends AppCompatActivity {
         tvTeamCompanyName.setText(companyname);
         //getTeam
         RequestQueue queue = Volley.newRequestQueue(ViewTeamActivity.this);
-        //String urlcompany ="http://ivriah.000webhostapp.com/gooloo/gooloo/getTeamMembers.php?company="+companyname;
-        String urlcompany ="http://10.0.2.2/gooloo/getTeamMembers.php?company="+companyname;
+        String urlcompany ="http://ivriah.000webhostapp.com/gooloo/gooloo/getTeamMembers.php?company="+companyname;
+        //String urlcompany ="http://10.0.2.2/gooloo/getTeamMembers.php?company="+companyname;
         Log.d("URL company name",""+companyname);
         // Request a json response from the provided URL.
         StringRequest stringteamRequest = new StringRequest(Request.Method.GET, urlcompany,

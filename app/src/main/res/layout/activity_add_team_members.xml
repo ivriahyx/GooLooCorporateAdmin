@@ -152,9 +152,10 @@
             android:id="@+id/space"
             android:layout_width="match_parent"
             android:layout_height="50dp" />
+
         <Button
             android:id="@+id/btnAddTeam"
-            android:layout_width="wrap_content"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:layout_weight="0"
             android:text="Add" />

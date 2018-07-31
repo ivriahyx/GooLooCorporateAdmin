@@ -67,6 +67,14 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.draw.LineSeparator;
 import com.myapplicationdev.android.gooloocorporateadmin.R;
 
 import org.json.JSONArray;
@@ -123,15 +131,7 @@ public class ActiveFragment extends Fragment {
 
 
         //file
-        int permissionCheck_Write= ContextCompat.checkSelfPermission(
-                getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
-        if (permissionCheck_Write != PermissionChecker.PERMISSION_GRANTED){
-            Toast.makeText(getActivity(), "Permission not granted.", Toast.LENGTH_SHORT).show();
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
-           getActivity().finish();
-        }
 
         folderLocation = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MyFolder";
 
@@ -174,7 +174,6 @@ public class ActiveFragment extends Fragment {
                             Log.d("ActiveFragmentLine112", response.toString());
 
                             JSONObject jsonObject = new JSONObject(response.toString());
-                            //Log.d("ActiveFragment","JSONObject response : "+ jsonArray.getJSONObject(0));
                             String id = jsonObject.getString("id");
                             Log.d("item", jsonObject.getString("id"));
                             String company_name = jsonObject.getString("company_name");
@@ -189,7 +188,8 @@ public class ActiveFragment extends Fragment {
 
                             //getOrders
                             RequestQueue queue = Volley.newRequestQueue(getActivity());
-                            String urlOrder ="http://ivriah.000webhostapp.com/gooloo/gooloo/retrieveOrderForCustomer.php?company="+company_name;
+                            //String urlOrder ="http://ivriah.000webhostapp.com/gooloo/gooloo/retrieveOrderForCustomer.php?company="+company_name;
+                            String urlOrder ="http://10.0.2.2/gooloo/retrieveOrderForCustomer.php?company="+company_name;
 
                             // Request a json response from the provided URL.
                             StringRequest stringRequest = new StringRequest(Request.Method.GET, urlOrder,
@@ -207,9 +207,10 @@ public class ActiveFragment extends Fragment {
                                                         String firstName = jsonObject.getString("first_name");
                                                         String lastName = jsonObject.getString("last_name");
                                                         String finalPrice = jsonObject.getString("final_price");
+                                                        String customerId = jsonObject.getString("customer_id");
 
                                                         Log.d("order","id: "+orderId+" orderRef: "+order_ref+" firstName: "+firstName+" lastName: "+lastName+" finalprice: "+finalPrice);
-                                                        Order order = new Order(Integer.parseInt(orderId),order_ref, firstName, lastName, Double.parseDouble(finalPrice));
+                                                        Order order = new Order(Integer.parseInt(orderId),order_ref, firstName, lastName, Double.parseDouble(finalPrice),customerId);
                                                         al.add(order);
 
                                                         //test array
@@ -281,14 +282,12 @@ public class ActiveFragment extends Fragment {
         if (id == R.id.action_download) {
             AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
             final int index = info.position;
-            Log.d("activeOrderId",""+al.get(index).getOrderId());
             final int orderId = al.get(index).getOrderId();
             final String firstName = al.get(index).getFirstName();
             final String lastName = al.get(index).getLastName();
             final double finalPrice = al.get(index).getFinalPrice();
             final String orderRef = al.get(index).getOrderRef();
            RequestQueue queue = Volley.newRequestQueue(getActivity());
-            //String url ="https://ivriah.000webhostapp.com/gooloo/gooloo/LoginCorporateAdmin.php?email=" + email;
             String url ="http://ivriah.000webhostapp.com/gooloo/gooloo/getOrderDetails.php?orderId=" + orderId;
 
             // Request a json response from the provided URL.
@@ -306,7 +305,7 @@ public class ActiveFragment extends Fragment {
                                     String orderDetailId = jsonObject.getString("id");
                                     String itemName = jsonObject.getString("item_name");
                                     String unitPrice = jsonObject.getString("price");
-                                    createPDF("Order created by: "+firstName+" "+lastName+"\n Items: "+itemName+"\nUnit Price: "+unitPrice+"\nTotal Price: "+finalPrice,""+orderRef);
+                                    createPDF("Order created by: "+firstName+" "+lastName+"\nItems: "+itemName+"\nUnit Price: $"+unitPrice+"\nTotal Price: $"+finalPrice+"\n",""+orderRef);
                                 }
 
 
@@ -330,6 +329,7 @@ public class ActiveFragment extends Fragment {
             // Add the request to the RequestQueue.
             queue.add(orderDetailsRequest);
 
+            Toast.makeText(getActivity(), "Invoice Successfully Downloaded", Toast.LENGTH_SHORT).show();
 
             //openPDF(orderRef);
 
@@ -337,6 +337,10 @@ public class ActiveFragment extends Fragment {
 
             return true;
         }else if (id == R.id.action_submit_order){
+            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+            final int index = info.position;
+            final String orderRefNum = al.get(index).getOrderRef();
+            final String customerId = al.get(index).getCustomerId();
             //Create the Dialog Builder
             AlertDialog.Builder myBuilder = new AlertDialog.Builder(getActivity());
 
@@ -354,7 +358,7 @@ public class ActiveFragment extends Fragment {
 
                     RequestQueue queue = Volley.newRequestQueue(getActivity());
                     //String url ="http://ivriah.000webhostapp.com/gooloo/gooloo/submitOrder.php?orderRef="+"GL20160314000004"+"&customerId="+"4355";
-                    String url ="http://10.0.2.2/gooloo/submitOrder.php?orderRef="+"GL20160314000004"+"&customerId="+"4355";
+                    String url ="http://10.0.2.2/gooloo/submitOrder.php?orderRef="+orderRefNum+"&customerId="+customerId;
 
                     // Request a json response from the provided URL.
                     StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -395,43 +399,59 @@ public class ActiveFragment extends Fragment {
     public void createPDF(String msg,String filename){
         //write
         //Code for file writing
-        File targetFile = new File(folderLocation,filename+".pdf");
+        String path = Environment.getExternalStorageDirectory().getAbsolutePath()+ "/MyFolder";
+        File f = new File(path, filename+".pdf");
+
 
         try {
-            File targetFile_I = new File(folderLocation, filename+".pdf");
-            FileWriter writer_I = new FileWriter(targetFile_I, true);
-            writer_I.write(msg);
-            writer_I.flush();
-            writer_I.close();
-        } catch (Exception e) {
-            Toast.makeText(getActivity(), "Failed to write!", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        }
-    }
-    public void openPDF(String filename){
-//read
-        //Code for file reading
-        File targetFile = new File(folderLocation,filename+".pdf");
-        if(targetFile.exists() == true){
-            String data="";
-            try{
-                FileReader reader = new FileReader(targetFile);
-                BufferedReader br = new BufferedReader(reader);
+            Document document = new Document();
+            // Location to save
+            PdfWriter.getInstance(document, new FileOutputStream(f, false));
 
-                String line = br.readLine();
-                while (line != null){
-                    data += line +"\n";
-                    line = br.readLine();
-                }
-                br.close();
-                reader.close();
-            }catch (Exception e){
-                Toast.makeText(getActivity(), "Failed to read!", Toast.LENGTH_SHORT).show();
-                e.printStackTrace();
-            }
-            Log.d("Content",data);
+            // Open to write
+            document.open();
+            //Document Settings
+            document.setPageSize(PageSize.A4);
+            document.addCreationDate();
+            document.addAuthor("GooLoo");
+            document.addCreator("GooLoo");
+
+            document.addHeader("ss","s");
+
+            Chunk mOrderDetailsTitleChunk = new Chunk("Order Details");
+            Paragraph mOrderDetailsTitleParagraph = new Paragraph(mOrderDetailsTitleChunk);
+            mOrderDetailsTitleParagraph.setAlignment(Element.ALIGN_CENTER);
+
+
+            document.add(mOrderDetailsTitleParagraph);
+
+            Chunk mOrderIdChunk = new Chunk("Order No: ");
+            Paragraph mOrderIdParagraph = new Paragraph(mOrderIdChunk);
+            document.add(mOrderIdParagraph);
+            document.add(new Paragraph(filename));
+
+            LineSeparator lineSeparator = new LineSeparator();
+            lineSeparator.setLineColor(new BaseColor(0, 0, 0, 68));
+            document.add(new Chunk(lineSeparator));
+
+            document.add(new Paragraph(msg));
+
+
+
+            document.add(new Chunk(lineSeparator));
+            document.add(new Paragraph(""));
+
+
+
+            document.close();
+            Log.d("sss", "done");
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
 
         }
+
     }
+
 
 }

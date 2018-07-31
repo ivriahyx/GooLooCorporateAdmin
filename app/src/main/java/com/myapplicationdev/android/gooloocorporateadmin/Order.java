@@ -6,13 +6,15 @@ public class Order {
     private String firstName;
     private String lastName;
     private double finalPrice;
+    private String customerId;
 
-    public Order(int orderId, String orderRef, String firstName, String lastName, double finalPrice) {
+    public Order(int orderId, String orderRef, String firstName, String lastName, double finalPrice, String customerId) {
         this.orderId = orderId;
         this.orderRef = orderRef;
         this.firstName = firstName;
         this.lastName = lastName;
         this.finalPrice = finalPrice;
+        this.customerId = customerId;
     }
 
     public Order() {
@@ -56,5 +58,13 @@ public class Order {
 
     public void setFinalPrice(double finalPrice) {
         this.finalPrice = finalPrice;
+    }
+
+    public String getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(String customerId) {
+        this.customerId = customerId;
     }
 }

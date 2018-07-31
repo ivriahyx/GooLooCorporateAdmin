@@ -65,8 +65,8 @@ public class HomeActivity extends AppCompatActivity {
 
 //getCompany
         RequestQueue queue = Volley.newRequestQueue(HomeActivity.this);
-        //String urlcompany ="http://ivriah.000webhostapp.com/gooloo/gooloo/getCompanyname.php?email="+email;
-        String urlcompany ="http://10.0.2.2/gooloo/getCompanyname.php?email="+email;
+        String urlcompany ="http://ivriah.000webhostapp.com/gooloo/gooloo/getCompanyname.php?email="+email;
+        //String urlcompany ="http://10.0.2.2/gooloo/getCompanyname.php?email="+email;
 
         // Request a json response from the provided URL.
         StringRequest stringcompanyRequest = new StringRequest(Request.Method.GET, urlcompany,

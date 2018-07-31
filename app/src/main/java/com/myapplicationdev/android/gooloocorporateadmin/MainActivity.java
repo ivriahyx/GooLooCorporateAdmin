@@ -61,8 +61,8 @@ public class MainActivity extends AppCompatActivity {
                 email = etEmail.getText().toString();
 
                 RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
-                //String url ="http://ivriah.000webhostapp.com/gooloo/gooloo/LoginCorporateAdmin.php?email=" + email;
-                String url ="http://10.0.2.2/gooloo/LoginCorporateAdmin.php?email=" + email;
+                String url ="http://ivriah.000webhostapp.com/gooloo/gooloo/LoginCorporateAdmin.php?email=" + email;
+                //String url ="http://10.0.2.2/gooloo/LoginCorporateAdmin.php?email=" + email;
 
                 // Request a json response from the provided URL.
                 StringRequest stringRequest = new StringRequest(Request.Method.GET, url,

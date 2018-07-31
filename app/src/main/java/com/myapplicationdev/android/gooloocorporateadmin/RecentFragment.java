@@ -21,6 +21,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -55,12 +56,25 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.draw.LineSeparator;
 import com.myapplicationdev.android.gooloocorporateadmin.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -76,6 +90,8 @@ public class RecentFragment extends Fragment {
     ListView lv_recent;
     ArrayList<Order> al_recent = new ArrayList<Order>();
     OrderAdapter aa_recent;
+
+    String folderLocation;
 
     ClipboardManager myClipboard;
     public static RecentFragment newInstance(){
@@ -97,6 +113,22 @@ public class RecentFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_recent, container, false);
         ViewOrdersActivity activity = (ViewOrdersActivity) getActivity();
+
+        //file
+
+        folderLocation = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MyFolder";
+
+        File folder = new File(folderLocation);
+        if (folder.exists() == false) {
+            boolean result = folder.mkdir();
+            if (result == true) {
+                Log.d("File Read/Write", "Folder created");
+            }
+        }
+
+        //
+
+
         String email = activity.getEmail();
         Log.d("ActiveFragment","email: "+email);
 
@@ -109,8 +141,8 @@ public class RecentFragment extends Fragment {
         //
         //getCompany
         RequestQueue queue = Volley.newRequestQueue(getActivity());
-        //String urlcompany ="http://ivriah.000webhostapp.com/gooloo/gooloo/getCompanyname.php?email="+email;
-        String urlcompany ="http://10.0.2.2/gooloo/getCompanyname.php?email="+email;
+        String urlcompany ="http://ivriah.000webhostapp.com/gooloo/gooloo/getCompanyname.php?email="+email;
+        //String urlcompany ="http://10.0.2.2/gooloo/getCompanyname.php?email="+email;
 
         // Request a json response from the provided URL.
         StringRequest stringcompanyRequest = new StringRequest(Request.Method.GET, urlcompany,
@@ -136,8 +168,8 @@ public class RecentFragment extends Fragment {
 
                             //getOrders
                             RequestQueue queue = Volley.newRequestQueue(getActivity());
-                            //String urlOrder ="http://ivriah.000webhostapp.com/gooloo/gooloo/retrieveRecentOrderForCustomer.php?company="+company_name;
-                            String urlOrder ="http://10.0.2.2/gooloo/retrieveRecentOrderForCustomer.php?company="+company_name;
+                            String urlOrder ="http://ivriah.000webhostapp.com/gooloo/gooloo/retrieveRecentOrderForCustomer.php?company="+company_name;
+                            ///String urlOrder ="http://10.0.2.2/gooloo/retrieveRecentOrderForCustomer.php?company="+company_name;
 
                             // Request a json response from the provided URL.
                             StringRequest stringRequest = new StringRequest(Request.Method.GET, urlOrder,
@@ -156,9 +188,10 @@ public class RecentFragment extends Fragment {
                                                     String firstName = jsonObject.getString("first_name");
                                                     String lastName = jsonObject.getString("last_name");
                                                     String finalPrice = jsonObject.getString("final_price");
+                                                    String customerId = jsonObject.getString("customer_id");
 
                                                     Log.d("order","id: "+orderId+" orderRef: "+order_ref+" firstName: "+firstName+" lastName: "+lastName+" finalprice: "+finalPrice);
-                                                    Order order = new Order(Integer.parseInt(orderId),order_ref, firstName, lastName, Double.parseDouble(finalPrice));
+                                                    Order order = new Order(Integer.parseInt(orderId),order_ref, firstName, lastName, Double.parseDouble(finalPrice),customerId);
                                                     al_recent.add(order);
 
                                                     //test array
@@ -234,7 +267,59 @@ public class RecentFragment extends Fragment {
         int id = item.getItemId();
 
         if (id == R.id.action_download) {
+            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+            final int index = info.position;
+            Log.d("activeOrderId",""+al_recent.get(index).getOrderId());
+            final int orderId = al_recent.get(index).getOrderId();
+            final String firstName = al_recent.get(index).getFirstName();
+            final String lastName = al_recent.get(index).getLastName();
+            final double finalPrice = al_recent.get(index).getFinalPrice();
+            final String orderRef = al_recent.get(index).getOrderRef();
+            RequestQueue queue = Volley.newRequestQueue(getActivity());
+            String url ="http://ivriah.000webhostapp.com/gooloo/gooloo/getOrderDetails.php?orderId=" + orderId;
 
+            // Request a json response from the provided URL.
+            StringRequest orderDetailsRequest = new StringRequest(Request.Method.GET, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            try {
+
+                                JSONArray jsonArray = new JSONArray(response.toString());
+                                Log.d("RecentOrderDetails","JSONObj response : "+response);
+
+                                for (int i=0;i<jsonArray.length();i++) {
+                                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                                    String orderDetailId = jsonObject.getString("id");
+                                    String itemName = jsonObject.getString("item_name");
+                                    String unitPrice = jsonObject.getString("price");
+                                    createPDF("Order created by: "+firstName+" "+lastName+"\nItems: "+itemName+"\nUnit Price: $"+unitPrice+"\nTotal Price: $"+finalPrice+"\n",""+orderRef);
+                                }
+
+
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                Toast toast = Toast.makeText(getActivity(), "Unsuccessful", Toast.LENGTH_LONG);
+                                toast.show();
+                                Log.d("RecentOrderDetails","Unsuccessful");
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.d("RecentOrderDetails", error.toString()+"");
+                    Toast toast = Toast.makeText(getActivity(), ""+error.toString(), Toast.LENGTH_LONG);
+                    toast.show();
+                }
+            });
+
+            // Add the request to the RequestQueue.
+            queue.add(orderDetailsRequest);
+
+
+            //openPDF(orderRef);
+            Toast.makeText(getActivity(), "Invoice Successfully Downloaded", Toast.LENGTH_SHORT).show();
             return true;
         }else{
             getActivity().finish();
@@ -244,6 +329,59 @@ public class RecentFragment extends Fragment {
     }
     //
 
+    public void createPDF(String msg,String filename) {
+        //write
+        //Code for file writing
+        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MyFolder";
+        File f = new File(path, filename+".pdf");
+
+
+        try {
+            Document document = new Document();
+            // Location to save
+            PdfWriter.getInstance(document, new FileOutputStream(f, false));
+
+            // Open to write
+            document.open();
+            //Document Settings
+            document.setPageSize(PageSize.A4);
+            document.addCreationDate();
+            document.addAuthor("GooLoo");
+            document.addCreator("GooLoo");
+
+            document.addHeader("ss", "s");
+
+            Chunk mOrderDetailsTitleChunk = new Chunk("Order Details");
+            Paragraph mOrderDetailsTitleParagraph = new Paragraph(mOrderDetailsTitleChunk);
+            mOrderDetailsTitleParagraph.setAlignment(Element.ALIGN_CENTER);
+
+
+            document.add(mOrderDetailsTitleParagraph);
+
+            Chunk mOrderIdChunk = new Chunk("Order No: ");
+            Paragraph mOrderIdParagraph = new Paragraph(mOrderIdChunk);
+            document.add(mOrderIdParagraph);
+            document.add(new Paragraph(filename));
+
+            LineSeparator lineSeparator = new LineSeparator();
+            lineSeparator.setLineColor(new BaseColor(0, 0, 0, 68));
+            document.add(new Chunk(lineSeparator));
+
+            document.add(new Paragraph(msg));
+
+
+            document.add(new Chunk(lineSeparator));
+            document.add(new Paragraph(""));
+
+
+            document.close();
+            Log.d("sss", "done");
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+
+        }
+    }
 
 
 }

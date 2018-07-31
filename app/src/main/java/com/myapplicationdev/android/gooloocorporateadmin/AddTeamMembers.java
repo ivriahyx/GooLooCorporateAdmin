@@ -58,8 +58,8 @@ public class AddTeamMembers extends AppCompatActivity implements AdapterView.OnI
             public void onClick(View v) {
 
                 RequestQueue queue = Volley.newRequestQueue(AddTeamMembers.this);
-                //String urlTeam = "http://ivriah.000webhostapp.com/gooloo/gooloo/addTeamMember.php";
-                String urlTeam = "http://10.0.2.2/gooloo/addTeamMember.php";
+                String urlTeam = "http://ivriah.000webhostapp.com/gooloo/gooloo/addTeamMember.php";
+                //String urlTeam = "http://10.0.2.2/gooloo/addTeamMember.php";
                 StringRequest postRequest = new StringRequest(Request.Method.POST, urlTeam,
                         new Response.Listener<String>()
                         {
