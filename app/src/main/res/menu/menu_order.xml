@@ -5,7 +5,7 @@
     tools:context=".MainActivity">
 
     <item
-        android:id="@+id/action_download"
+        android:id="@+id/action_recent_download"
         android:title="Download Invoice"
         android:orderInCategory="100"
         app:showAsAction="never" />

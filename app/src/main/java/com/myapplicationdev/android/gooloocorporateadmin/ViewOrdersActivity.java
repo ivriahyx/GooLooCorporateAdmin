@@ -32,6 +32,9 @@ public class ViewOrdersActivity extends AppCompatActivity {
     private ViewPager viewPager;
     String email="";
     String companyname="";
+
+    ViewPagerAdapter mDemoCollectionPagerAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +50,8 @@ public class ViewOrdersActivity extends AppCompatActivity {
             finish();
         }
 
+        mDemoCollectionPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+
          email = getIntent().getStringExtra("email");
          companyname = getIntent().getStringExtra("companyname");
 
@@ -57,8 +62,10 @@ public class ViewOrdersActivity extends AppCompatActivity {
         //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
-        setupViewPager(viewPager);
 
+        viewPager.setAdapter(mDemoCollectionPagerAdapter);
+
+        setupViewPager(viewPager);
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
 

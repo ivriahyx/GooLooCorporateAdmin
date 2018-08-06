@@ -1,6 +1,7 @@
 package com.myapplicationdev.android.gooloocorporateadmin;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +38,11 @@ public class OrderAdapter extends ArrayAdapter<Order>{
 
         tvOrderRef.setText(currentItem.getOrderRef());
 
+        if (position % 2 == 1) {
+            rowView.setBackgroundColor(Color.rgb(254,245,245));
+        } else {
+            rowView.setBackgroundColor(Color.rgb(235,74,74));
+        }
         return rowView;
     }
 }

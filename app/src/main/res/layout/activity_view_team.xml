@@ -26,7 +26,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:fontFamily="sans-serif"
-            android:text="View Team"
+            android:paddingLeft="5dp"
+            android:text="View Team for "
             android:textSize="24sp"
             android:textStyle="bold" />
 
@@ -34,8 +35,8 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/tvTeamCompanyName"
@@ -45,15 +46,16 @@
             android:paddingLeft="5dp"
             android:text="TextView"
             android:textSize="20sp" />
-    </LinearLayout>
 
-    <Button
-        android:id="@+id/btnAdd"
-        style="@android:style/Widget.Button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Add"
-        android:textSize="18sp" />
+        <Button
+            android:id="@+id/btnAdd"
+            style="@android:style/Widget.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Add"
+            android:textSize="18sp" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

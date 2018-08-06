@@ -104,7 +104,6 @@ public class ActiveFragment extends Fragment {
     OrderAdapter aa;
 
     TextView tvOrderRef;
-    ImageView ivpdf;
 
     String folderLocation;
 
@@ -133,7 +132,7 @@ public class ActiveFragment extends Fragment {
         //file
 
 
-        folderLocation = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MyFolder";
+        folderLocation = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download";
 
         File folder = new File(folderLocation);
         if (folder.exists() == false) {
@@ -150,8 +149,6 @@ public class ActiveFragment extends Fragment {
         Log.d("ActiveFragment","email: "+email);
 
         tvOrderRef = (TextView)rootView.findViewById(R.id.textViewOrderRef1);
-        ivpdf = (ImageView)rootView.findViewById(R.id.ivpdf);
-
         lv_active = (ListView)rootView.findViewById(R.id.lv_active);
 
         aa = new OrderAdapter(getActivity(), R.layout.row_active_orders, al);
@@ -188,8 +185,8 @@ public class ActiveFragment extends Fragment {
 
                             //getOrders
                             RequestQueue queue = Volley.newRequestQueue(getActivity());
-                            //String urlOrder ="http://ivriah.000webhostapp.com/gooloo/gooloo/retrieveOrderForCustomer.php?company="+company_name;
-                            String urlOrder ="http://10.0.2.2/gooloo/retrieveOrderForCustomer.php?company="+company_name;
+                            String urlOrder ="http://ivriah.000webhostapp.com/gooloo/gooloo/retrieveOrderForCustomer.php?company="+company_name;
+                            //String urlOrder ="http://10.0.2.2/gooloo/retrieveOrderForCustomer.php?company="+company_name;
 
                             // Request a json response from the provided URL.
                             StringRequest stringRequest = new StringRequest(Request.Method.GET, urlOrder,
@@ -212,6 +209,7 @@ public class ActiveFragment extends Fragment {
                                                         Log.d("order","id: "+orderId+" orderRef: "+order_ref+" firstName: "+firstName+" lastName: "+lastName+" finalprice: "+finalPrice);
                                                         Order order = new Order(Integer.parseInt(orderId),order_ref, firstName, lastName, Double.parseDouble(finalPrice),customerId);
                                                         al.add(order);
+
 
                                                         //test array
                                                         for(int x =0; x < al.size(); x++){
@@ -283,11 +281,12 @@ public class ActiveFragment extends Fragment {
             AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
             final int index = info.position;
             final int orderId = al.get(index).getOrderId();
+            Log.d("aaa",""+al.get(index).getOrderId());
             final String firstName = al.get(index).getFirstName();
             final String lastName = al.get(index).getLastName();
             final double finalPrice = al.get(index).getFinalPrice();
             final String orderRef = al.get(index).getOrderRef();
-           RequestQueue queue = Volley.newRequestQueue(getActivity());
+            RequestQueue queue = Volley.newRequestQueue(getActivity());
             String url ="http://ivriah.000webhostapp.com/gooloo/gooloo/getOrderDetails.php?orderId=" + orderId;
 
             // Request a json response from the provided URL.
@@ -297,7 +296,7 @@ public class ActiveFragment extends Fragment {
                         public void onResponse(String response) {
                             try {
 
-                                JSONArray jsonArray = new JSONArray(response.toString());
+                                JSONArray jsonArray = new JSONArray(response);
                                 Log.d("ActiveOrderDetails","JSONObj response : "+response);
 
                                 for (int i=0;i<jsonArray.length();i++) {
@@ -357,8 +356,8 @@ public class ActiveFragment extends Fragment {
                 public void onClick(DialogInterface dialog, int which) {
 
                     RequestQueue queue = Volley.newRequestQueue(getActivity());
-                    //String url ="http://ivriah.000webhostapp.com/gooloo/gooloo/submitOrder.php?orderRef="+"GL20160314000004"+"&customerId="+"4355";
-                    String url ="http://10.0.2.2/gooloo/submitOrder.php?orderRef="+orderRefNum+"&customerId="+customerId;
+                    String url ="http://ivriah.000webhostapp.com/gooloo/gooloo/submitOrder.php?orderRef="+orderRefNum;
+                    //String url ="http://10.0.2.2/gooloo/submitOrder.php?orderRef="+orderRefNum+"&customerId="+customerId;
 
                     // Request a json response from the provided URL.
                     StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -399,7 +398,7 @@ public class ActiveFragment extends Fragment {
     public void createPDF(String msg,String filename){
         //write
         //Code for file writing
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath()+ "/MyFolder";
+        String path = Environment.getExternalStorageDirectory().getAbsolutePath()+ "/Download";
         File f = new File(path, filename+".pdf");
 
 

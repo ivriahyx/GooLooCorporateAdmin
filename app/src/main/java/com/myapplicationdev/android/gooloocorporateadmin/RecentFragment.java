@@ -88,8 +88,8 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 public class RecentFragment extends Fragment {
 
     ListView lv_recent;
-    ArrayList<Order> al_recent = new ArrayList<Order>();
-    OrderAdapter aa_recent;
+    ArrayList<OrderRecent> al_recent = new ArrayList<OrderRecent>();
+    OrderRecentAdapter aa_recent;
 
     String folderLocation;
 
@@ -116,7 +116,7 @@ public class RecentFragment extends Fragment {
 
         //file
 
-        folderLocation = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MyFolder";
+        folderLocation = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download";
 
         File folder = new File(folderLocation);
         if (folder.exists() == false) {
@@ -130,13 +130,15 @@ public class RecentFragment extends Fragment {
 
 
         String email = activity.getEmail();
-        Log.d("ActiveFragment","email: "+email);
+        Log.d("Email","email: "+email);
 
         lv_recent = (ListView)rootView.findViewById(R.id.lv_recent);
 
-        aa_recent = new OrderAdapter(getActivity(), R.layout.row_active_orders, al_recent);
+        aa_recent = new OrderRecentAdapter(getActivity(), R.layout.row_recent_orders, al_recent);
         aa_recent.clear();
         lv_recent.setAdapter(aa_recent);
+
+        registerForContextMenu(lv_recent);
 
         //
         //getCompany
@@ -155,15 +157,13 @@ public class RecentFragment extends Fragment {
                             JSONObject jsonObject = new JSONObject(response.toString());
                             //Log.d("ActiveFragment","JSONObject response : "+ jsonArray.getJSONObject(0));
                             String id = jsonObject.getString("id");
-                            Log.d("item", jsonObject.getString("id"));
                             String company_name = jsonObject.getString("company_name");
-                            Log.d("item", jsonObject.getString("company_name"));
 
                             String[] company = {id, company_name};
 
                             //test array
                             for (int x = 0; x < company.length; x++) {
-                                Log.d("itemarray", company[x]);
+                                Log.d("itemarray_recent", company[x]);
                             }
 
                             //getOrders
@@ -191,12 +191,12 @@ public class RecentFragment extends Fragment {
                                                     String customerId = jsonObject.getString("customer_id");
 
                                                     Log.d("order","id: "+orderId+" orderRef: "+order_ref+" firstName: "+firstName+" lastName: "+lastName+" finalprice: "+finalPrice);
-                                                    Order order = new Order(Integer.parseInt(orderId),order_ref, firstName, lastName, Double.parseDouble(finalPrice),customerId);
-                                                    al_recent.add(order);
+                                                    OrderRecent order_recent = new OrderRecent(Integer.parseInt(orderId),order_ref, firstName, lastName, Double.parseDouble(finalPrice),customerId);
+                                                    al_recent.add(order_recent);
 
                                                     //test array
                                                     for(int x =0; x < al_recent.size(); x++){
-                                                        Log.d("itemarrayActive", ""+al_recent.get(x).getOrderRef());
+                                                        Log.d("itemarrayRecent", ""+al_recent.get(x).getOrderRef());
                                                     }
                                                 }
                                             }
@@ -237,9 +237,9 @@ public class RecentFragment extends Fragment {
 
 
 
-        registerForContextMenu(lv_recent);
 
-        //Upon Clicking on the item in the listview
+
+        /*//Upon Clicking on the item in the listview
         lv_recent.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -247,7 +247,7 @@ public class RecentFragment extends Fragment {
                 Log.d("list",al_recent.get(position).toString());
             }
         });
-
+*/
         return rootView;
     }
 
@@ -266,15 +266,15 @@ public class RecentFragment extends Fragment {
     public boolean onContextItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_download) {
-            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-            final int index = info.position;
-            Log.d("activeOrderId",""+al_recent.get(index).getOrderId());
-            final int orderId = al_recent.get(index).getOrderId();
-            final String firstName = al_recent.get(index).getFirstName();
-            final String lastName = al_recent.get(index).getLastName();
-            final double finalPrice = al_recent.get(index).getFinalPrice();
-            final String orderRef = al_recent.get(index).getOrderRef();
+        if (id == R.id.action_recent_download) {
+            AdapterView.AdapterContextMenuInfo info_recent = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+            final int index_recent = info_recent.position;
+            Log.d("rrr",""+al_recent.get(index_recent).getOrderId());
+            final int orderId = al_recent.get(index_recent).getOrderId();
+            final String firstName = al_recent.get(index_recent).getFirstName();
+            final String lastName = al_recent.get(index_recent).getLastName();
+            final double finalPrice = al_recent.get(index_recent).getFinalPrice();
+            final String orderRef = al_recent.get(index_recent).getOrderRef();
             RequestQueue queue = Volley.newRequestQueue(getActivity());
             String url ="http://ivriah.000webhostapp.com/gooloo/gooloo/getOrderDetails.php?orderId=" + orderId;
 
@@ -300,8 +300,8 @@ public class RecentFragment extends Fragment {
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
-                                Toast toast = Toast.makeText(getActivity(), "Unsuccessful", Toast.LENGTH_LONG);
-                                toast.show();
+                               /* Toast toast = Toast.makeText(getActivity(), "Unsuccessful", Toast.LENGTH_LONG);
+                                toast.show();*/
                                 Log.d("RecentOrderDetails","Unsuccessful");
                             }
                         }
@@ -332,7 +332,7 @@ public class RecentFragment extends Fragment {
     public void createPDF(String msg,String filename) {
         //write
         //Code for file writing
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MyFolder";
+        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download";
         File f = new File(path, filename+".pdf");
 
 

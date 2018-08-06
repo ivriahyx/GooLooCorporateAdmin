@@ -33,8 +33,8 @@ public class ViewTeamActivity extends AppCompatActivity {
     TextView tvTeamCompanyName;
 
     ListView lv_team;
-    ArrayList<String> al;
-    ArrayAdapter<String> aa;
+    ArrayList<Team> al = new ArrayList<Team>();
+    TeamAdapter aa;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,23 +49,26 @@ public class ViewTeamActivity extends AppCompatActivity {
         tvTeamCompanyName = (TextView)findViewById(R.id.tvTeamCompanyName);
 
         lv_team = (ListView)findViewById(R.id.lv_team);
-        al = new ArrayList<String>();
-        aa = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,al);
+        al = new ArrayList<Team>();
+
+        aa = new TeamAdapter(getApplicationContext(), R.layout.row_active_orders, al);
+        lv_team.setAdapter(aa);
 
         String companyname = getIntent().getStringExtra("companyname");
+        Log.d("intent company name",companyname);
         tvTeamCompanyName.setText(companyname);
+
         //getTeam
         RequestQueue queue = Volley.newRequestQueue(ViewTeamActivity.this);
-        String urlcompany ="http://ivriah.000webhostapp.com/gooloo/gooloo/getTeamMembers.php?company="+companyname;
+        String urlcompany ="http://ivriah.000webhostapp.com/gooloo/gooloo/getTeamMembers.php?company="+"National Label Company Asia PTE LTD";
         //String urlcompany ="http://10.0.2.2/gooloo/getTeamMembers.php?company="+companyname;
-        Log.d("URL company name",""+companyname);
         // Request a json response from the provided URL.
-        StringRequest stringteamRequest = new StringRequest(Request.Method.GET, urlcompany,
+        StringRequest teamRequest = new StringRequest(Request.Method.GET, urlcompany,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
+                        Log.d("ViewTeamActivty", "Response: "+response);
                         try {
-                            Log.d("ViewTeamActivty", "Response: "+response);
                                 JSONArray jsonArray = new JSONArray(response);
                                 Log.d("","jsonArray: "+jsonArray);
                                 for(int i=0;i<jsonArray.length();i++){
@@ -75,17 +78,16 @@ public class ViewTeamActivity extends AppCompatActivity {
                                     String lastname = jsonObject.getString("last_name");
                                     Log.d("item", jsonObject.getString("last_name"));
 
-                                    String[] company = {firstname,lastname};
+                                    //String[] company = {firstname,lastname};
 
-                                    al.add(company[0]+" "+company[1]);
+                                    Team team = new Team(firstname,lastname);
+                                    al.add(team);
+                                    aa.notifyDataSetChanged();
 
-                                    aa = new ArrayAdapter<String>(ViewTeamActivity.this, android.R.layout.simple_list_item_1, al);
-                                    lv_team.setAdapter(aa);
-
-                                    //test array
+                                   /* //test array
                                     for (int x = 0; x < company.length; x++) {
                                         Log.d("itemarray", company[x]);
-                                    }
+                                    }*/
                                 }
 
                                 Log.d("Arraylist",""+al.size());
@@ -101,13 +103,14 @@ public class ViewTeamActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d("ViewTeamActivtyError", error.toString()+"");
-                Toast toast = Toast.makeText(ViewTeamActivity.this, ""+error.toString(), Toast.LENGTH_LONG);
+                Toast toast = Toast.makeText(ViewTeamActivity.this, "No Team member found.", Toast.LENGTH_LONG);
                 toast.show();
             }
         });
 
 // Add the request to the RequestQueue.
-        queue.add(stringteamRequest);
+
+        queue.add(teamRequest);
 
 
         btnAdd.setOnClickListener(new View.OnClickListener() {
@@ -126,4 +129,6 @@ public class ViewTeamActivity extends AppCompatActivity {
         String companyname = getIntent().getStringExtra("companyname");
         tvTeamCompanyName.setText(companyname);
     }
+
+
 }
