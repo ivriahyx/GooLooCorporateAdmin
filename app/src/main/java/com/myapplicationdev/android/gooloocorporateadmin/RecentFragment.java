@@ -189,9 +189,10 @@ public class RecentFragment extends Fragment {
                                                     String lastName = jsonObject.getString("last_name");
                                                     String finalPrice = jsonObject.getString("final_price");
                                                     String customerId = jsonObject.getString("customer_id");
+                                                    String bookingtime = jsonObject.getString("booking_time");
 
                                                     Log.d("order","id: "+orderId+" orderRef: "+order_ref+" firstName: "+firstName+" lastName: "+lastName+" finalprice: "+finalPrice);
-                                                    OrderRecent order_recent = new OrderRecent(Integer.parseInt(orderId),order_ref, firstName, lastName, Double.parseDouble(finalPrice),customerId);
+                                                    OrderRecent order_recent = new OrderRecent(Integer.parseInt(orderId),order_ref, firstName, lastName, Double.parseDouble(finalPrice),customerId,bookingtime);
                                                     al_recent.add(order_recent);
 
                                                     //test array

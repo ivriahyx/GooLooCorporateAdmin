@@ -205,9 +205,10 @@ public class ActiveFragment extends Fragment {
                                                         String lastName = jsonObject.getString("last_name");
                                                         String finalPrice = jsonObject.getString("final_price");
                                                         String customerId = jsonObject.getString("customer_id");
+                                                        String bookingtime = jsonObject.getString("booking_time");
 
                                                         Log.d("order","id: "+orderId+" orderRef: "+order_ref+" firstName: "+firstName+" lastName: "+lastName+" finalprice: "+finalPrice);
-                                                        Order order = new Order(Integer.parseInt(orderId),order_ref, firstName, lastName, Double.parseDouble(finalPrice),customerId);
+                                                        Order order = new Order(Integer.parseInt(orderId),order_ref, firstName, lastName, Double.parseDouble(finalPrice),customerId,bookingtime);
                                                         al.add(order);
 
 
@@ -304,6 +305,7 @@ public class ActiveFragment extends Fragment {
                                     String orderDetailId = jsonObject.getString("id");
                                     String itemName = jsonObject.getString("item_name");
                                     String unitPrice = jsonObject.getString("price");
+
                                     createPDF("Order created by: "+firstName+" "+lastName+"\nItems: "+itemName+"\nUnit Price: $"+unitPrice+"\nTotal Price: $"+finalPrice+"\n",""+orderRef);
                                 }
 

@@ -7,14 +7,16 @@ public class OrderRecent {
     private String lastName;
     private double finalPrice;
     private String customerId;
+    private String datetime;
 
-    public OrderRecent(int orderId, String orderRef, String firstName, String lastName, double finalPrice, String customerId) {
+    public OrderRecent(int orderId, String orderRef, String firstName, String lastName, double finalPrice, String customerId, String datetime) {
         this.orderId = orderId;
         this.orderRef = orderRef;
         this.firstName = firstName;
         this.lastName = lastName;
         this.finalPrice = finalPrice;
         this.customerId = customerId;
+        this.datetime = datetime;
     }
 
     public OrderRecent() {
@@ -66,5 +68,13 @@ public class OrderRecent {
 
     public void setCustomerId(String customerId) {
         this.customerId = customerId;
+    }
+
+    public String getDatetime() {
+        return datetime;
+    }
+
+    public void setDatetime(String datetime) {
+        this.datetime = datetime;
     }
 }

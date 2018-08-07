@@ -3,10 +3,13 @@ package com.myapplicationdev.android.gooloocorporateadmin;
 public class Team {
     private String firstName;
     private String lastName;
+    private String email;
 
-    public Team(String firstName, String lastName) {
+
+    public Team(String firstName, String lastName, String email) {
         this.firstName = firstName;
         this.lastName = lastName;
+        this.email = email;
     }
 
     public String getFirstName() {
@@ -25,5 +28,11 @@ public class Team {
         this.lastName = lastName;
     }
 
+    public String getEmail() {
+        return email;
+    }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }

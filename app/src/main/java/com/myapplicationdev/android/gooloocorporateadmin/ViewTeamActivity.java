@@ -74,13 +74,12 @@ public class ViewTeamActivity extends AppCompatActivity {
                                 for(int i=0;i<jsonArray.length();i++){
                                     JSONObject jsonObject=jsonArray.getJSONObject(i);
                                     String firstname = jsonObject.getString("first_name");
-                                    Log.d("item", jsonObject.getString("first_name"));
                                     String lastname = jsonObject.getString("last_name");
-                                    Log.d("item", jsonObject.getString("last_name"));
+                                    String email = jsonObject.getString("email");
 
                                     //String[] company = {firstname,lastname};
 
-                                    Team team = new Team(firstname,lastname);
+                                    Team team = new Team(firstname,lastname,email);
                                     al.add(team);
                                     aa.notifyDataSetChanged();
 

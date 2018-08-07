@@ -36,7 +36,7 @@ public class OrderAdapter extends ArrayAdapter<Order>{
 
         Order currentItem = orders.get(position);
 
-        tvOrderRef.setText(currentItem.getOrderRef());
+        tvOrderRef.setText(currentItem.getOrderRef()+"\nBooking time: "+currentItem.getDatetime());
 
         if (position % 2 == 1) {
             rowView.setBackgroundColor(Color.rgb(254,245,245));
