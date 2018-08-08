@@ -42,7 +42,7 @@
                     android:layout_height="50dp"
                     android:layout_weight="1.7"
                     android:text="First Name:"
-                    android:textSize="18sp"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -51,7 +51,7 @@
                     android:layout_height="50dp"
                     android:layout_weight="1"
                     android:text="First Name"
-                    android:textSize="18sp" />
+                    android:textSize="20sp" />
 
             </LinearLayout>
 
@@ -69,7 +69,7 @@
                     android:layout_height="50dp"
                     android:layout_weight="1.7"
                     android:text="Last Name:"
-                    android:textSize="18sp"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -78,7 +78,7 @@
                     android:layout_height="50dp"
                     android:layout_weight="1"
                     android:text="Last Name"
-                    android:textSize="18sp" />
+                    android:textSize="20sp" />
 
             </LinearLayout>
 
@@ -94,7 +94,7 @@
                     android:layout_height="50dp"
                     android:paddingLeft="10dp"
                     android:text="Company Name:"
-                    android:textSize="18sp"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
 
             </LinearLayout>
@@ -115,11 +115,20 @@
                     android:layout_height="50dp"
                     android:layout_gravity="center"
                     android:layout_weight="1"
-                    android:textSize="18sp" />
+                    android:textSize="20sp" />
+
             </LinearLayout>
 
         </LinearLayout>
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvHomeEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="TextView"
+        android:visibility="invisible" />
 
     <Space
         android:layout_width="0dp"

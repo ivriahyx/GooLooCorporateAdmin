@@ -1,5 +1,6 @@
 package com.myapplicationdev.android.gooloocorporateadmin;
 
+import android.graphics.Color;
 import android.support.v7.widget.Toolbar;
 import android.content.Intent;
 import android.os.Build;
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setTitle("GooLooCorporateAdmin");
+        mToolbar.setTitleTextColor(Color.WHITE);
 
         etEmail = (EditText)findViewById(R.id. edtEmail);
         btnLogin = (Button)findViewById(R.id. btnLogin);

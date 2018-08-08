@@ -22,8 +22,11 @@
         </activity>
         <activity android:name=".HomeActivity" />
         <activity android:name=".ViewOrdersActivity" />
-        <activity android:name=".ViewTeamActivity" />
-        <activity android:name=".AddTeamMembers"></activity>
+        <activity android:name=".ViewTeamActivity"
+            android:parentActivityName=".HomeActivity"/>
+        <activity android:name=".AddTeamMembers" />
+        <activity android:name=".ViewOrderRestaurant" />
+        <activity android:name=".OrderDetailsActivity"></activity>
     </application>
 
 </manifest>

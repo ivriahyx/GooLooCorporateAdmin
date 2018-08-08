@@ -1,6 +1,7 @@
 package com.myapplicationdev.android.gooloocorporateadmin;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -28,12 +29,9 @@ import org.json.JSONObject;
 
 public class HomeActivity extends AppCompatActivity {
 
-    TextView tvFirstName, tvLastName,tvCompanyName;
+    TextView tvFirstName, tvLastName,tvCompanyName,tvEmail;
     ImageView ivProfile;
 
-    String email="";
-    String firstName="";
-    String lastName="";
 
     private Toolbar mToolbar;
 
@@ -45,23 +43,25 @@ public class HomeActivity extends AppCompatActivity {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
 
         setSupportActionBar(mToolbar);
-        //getSupportActionBar().setDisplayShowHomeEnabled(true);
+        mToolbar.setTitleTextColor(Color.WHITE);
 
         tvFirstName = (TextView)findViewById(R.id.tvFirstName);
         tvLastName = (TextView)findViewById(R.id.tvLastName);
         tvCompanyName = (TextView)findViewById(R.id.tvCompanyName);
         ivProfile = (ImageView) findViewById(R.id.ivProfile);
+        tvEmail = (TextView)findViewById(R.id.tvHomeEmail);
 
         // Get intents
         Intent intent = getIntent();
         final String user[] = intent.getStringArrayExtra("user");
 
         //Extract data from user
-        firstName = user[3];
-        lastName = user[2];
-        email = user[1];
+        String firstName = user[3];
+        String lastName = user[2];
+        String email = user[1];
         tvFirstName.setText(" "+firstName);
         tvLastName.setText(" "+lastName);
+        tvEmail.setText(""+email);
 
 //getCompany
         RequestQueue queue = Volley.newRequestQueue(HomeActivity.this);
@@ -111,6 +111,7 @@ public class HomeActivity extends AppCompatActivity {
 
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -128,13 +129,13 @@ public class HomeActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_ViewTeam) {
             Intent j = new Intent(HomeActivity.this,ViewTeamActivity.class);
-            j.putExtra("email",""+email);
+            j.putExtra("email",""+tvEmail.getText().toString());
             j.putExtra("companyname",""+tvCompanyName.getText().toString());
             startActivity(j);
             return true;
         }else   if (id == R.id.action_Orders) {
-            Intent j = new Intent(HomeActivity.this,ViewOrdersActivity.class);
-            j.putExtra("email",""+email);
+            Intent j = new Intent(HomeActivity.this,ViewOrderRestaurant.class);
+            j.putExtra("email",""+tvEmail.getText().toString());
             j.putExtra("companyname",""+tvCompanyName.getText().toString());
             startActivity(j);
             return true;

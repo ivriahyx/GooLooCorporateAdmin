@@ -1,8 +1,12 @@
 package com.myapplicationdev.android.gooloocorporateadmin;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -44,6 +48,7 @@ public class ViewTeamActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("GooLooCorporateAdmin");
+        toolbar.setTitleTextColor(Color.WHITE);
 
         btnAdd = (Button)findViewById(R.id.btnAdd);
         tvTeamCompanyName = (TextView)findViewById(R.id.tvTeamCompanyName);
@@ -54,9 +59,17 @@ public class ViewTeamActivity extends AppCompatActivity {
         aa = new TeamAdapter(getApplicationContext(), R.layout.row_active_orders, al);
         lv_team.setAdapter(aa);
 
+        aa.notifyDataSetChanged();
+
         String companyname = getIntent().getStringExtra("companyname");
-        Log.d("intent company name",companyname);
         tvTeamCompanyName.setText(companyname);
+
+        //sharedpreference
+        final String strCompanyName = tvTeamCompanyName.getText().toString();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor prefEdit = prefs.edit();
+        prefEdit.putString("strCompanyName",strCompanyName);
+        prefEdit.commit();
 
         //getTeam
         RequestQueue queue = Volley.newRequestQueue(ViewTeamActivity.this);
@@ -116,7 +129,10 @@ public class ViewTeamActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ViewTeamActivity.this,AddTeamMembers.class);
+                intent.putExtra("teamcompanyname",strCompanyName);
+                Log.d("ViewTeam strCompanyName",strCompanyName);
                 startActivity(intent);
+                aa.notifyDataSetChanged();
             }
         });
 
@@ -125,8 +141,13 @@ public class ViewTeamActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        String companyname = getIntent().getStringExtra("companyname");
-        tvTeamCompanyName.setText(companyname);
+
+        aa.notifyDataSetChanged();
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String strCompanyName = prefs.getString("strCompanyName","");
+        Log.d("onResume companyname",strCompanyName);
+        tvTeamCompanyName.setText(strCompanyName);
     }
 
 

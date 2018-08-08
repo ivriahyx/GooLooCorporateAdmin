@@ -63,7 +63,7 @@ public class TeamAdapter extends ArrayAdapter<Team>{
         imageButtonDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "Delete button", Toast.LENGTH_SHORT).show();
+
                 //Delete team member (get staff id)
                Log.d("emailDelete", teamsArrayList.get(position).getEmail());
                 RequestQueue queue = Volley.newRequestQueue(context);
@@ -96,6 +96,7 @@ public class TeamAdapter extends ArrayAdapter<Team>{
 // Add the request to the RequestQueue.
 
                 queue.add(teamRequest);
+
             }
         });
 

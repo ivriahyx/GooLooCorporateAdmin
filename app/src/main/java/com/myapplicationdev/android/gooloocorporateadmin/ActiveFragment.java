@@ -145,8 +145,10 @@ public class ActiveFragment extends Fragment {
         //
 
         String email = activity.getEmail();
+        String restaurantname = activity.getRestaurantname();
 
         Log.d("ActiveFragment","email: "+email);
+        Log.d("ActiveFragment","restaurantname: "+restaurantname);
 
         tvOrderRef = (TextView)rootView.findViewById(R.id.textViewOrderRef1);
         lv_active = (ListView)rootView.findViewById(R.id.lv_active);
