@@ -33,6 +33,7 @@ public class ViewOrdersActivity extends AppCompatActivity {
     String email="";
     String companyname="";
     String restaurantname="";
+    String restaurantId="";
 
     ViewPagerAdapter mDemoCollectionPagerAdapter;
 
@@ -56,6 +57,7 @@ public class ViewOrdersActivity extends AppCompatActivity {
         email = getIntent().getStringExtra("email");
         companyname = getIntent().getStringExtra("companyname");
         restaurantname = getIntent().getStringExtra("restaurantname");
+        restaurantId = getIntent().getStringExtra("restaurantId");
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -82,9 +84,15 @@ public class ViewOrdersActivity extends AppCompatActivity {
         Log.d("ViewOrdersActivity",""+companyname);
         return companyname;
     }
-    public String getRestaurantname(){
+    public String getRestaurantId(){
+        Log.d("ViewOrdersActivity",""+restaurantId);
+        return restaurantId;
+    }
+    public String getRestaurantName(){
+        Log.d("ViewOrdersActivity",""+restaurantname);
         return restaurantname;
     }
+
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new ActiveFragment(), "Active");

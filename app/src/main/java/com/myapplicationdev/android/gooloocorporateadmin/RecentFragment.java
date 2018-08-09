@@ -132,6 +132,9 @@ public class RecentFragment extends Fragment {
         String email = activity.getEmail();
         Log.d("Email","email: "+email);
 
+        String restaurantname = activity.getRestaurantName();
+        final String restaurantId = activity.getRestaurantId();
+
         lv_recent = (ListView)rootView.findViewById(R.id.lv_recent);
 
         aa_recent = new OrderRecentAdapter(getActivity(), R.layout.row_recent_orders, al_recent);
@@ -168,7 +171,7 @@ public class RecentFragment extends Fragment {
 
                             //getOrders
                             RequestQueue queue = Volley.newRequestQueue(getActivity());
-                            String urlOrder ="http://ivriah.000webhostapp.com/gooloo/gooloo/retrieveRecentOrderForCustomer.php?company="+company_name;
+                            String urlOrder ="http://ivriah.000webhostapp.com/gooloo/gooloo/retrieveRecentOrderForCustomer.php?company="+company_name+"&m_id="+restaurantId;
                             ///String urlOrder ="http://10.0.2.2/gooloo/retrieveRecentOrderForCustomer.php?company="+company_name;
 
                             // Request a json response from the provided URL.

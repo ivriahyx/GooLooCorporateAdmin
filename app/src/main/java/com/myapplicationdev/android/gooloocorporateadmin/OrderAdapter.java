@@ -16,7 +16,7 @@ public class OrderAdapter extends ArrayAdapter<Order>{
     private ArrayList<Order> orders;
     private Context context;
 
-    TextView tvOrderRef;
+    TextView tvOrderRef,tvBooktime;
 
     public OrderAdapter(Context context, int resource, ArrayList<Order> orders){
         super(context, resource, orders);
@@ -33,10 +33,12 @@ public class OrderAdapter extends ArrayAdapter<Order>{
         View rowView = inflater.inflate(R.layout.row_active_orders, parent, false);
 
         tvOrderRef = (TextView)rowView.findViewById(R.id.textViewOrderRef1);
+        tvBooktime = (TextView)rowView.findViewById(R.id.textViewOrderDateTime);
 
         Order currentItem = orders.get(position);
 
-        tvOrderRef.setText(currentItem.getOrderRef()+"\nBooking time: "+currentItem.getDatetime());
+        tvOrderRef.setText(currentItem.getOrderRef());
+        tvBooktime.setText("Booking time: "+currentItem.getDatetime());
 
         if (position % 2 == 1) {
             rowView.setBackgroundColor(Color.rgb(254,245,245));

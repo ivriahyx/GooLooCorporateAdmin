@@ -15,7 +15,7 @@ public class OrderRecentAdapter extends ArrayAdapter<OrderRecent>{
     private ArrayList<OrderRecent> orders_recent;
     private Context context;
 
-    TextView tvOrderRef;
+    TextView tvOrderRef,tvDatetime;
 
     public OrderRecentAdapter(Context context, int resource, ArrayList<OrderRecent> orders_recent){
         super(context, resource, orders_recent);
@@ -29,13 +29,15 @@ public class OrderRecentAdapter extends ArrayAdapter<OrderRecent>{
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        View rowView = inflater.inflate(R.layout.row_active_orders, parent, false);
+        View rowView = inflater.inflate(R.layout.row_recent_orders, parent, false);
 
-        tvOrderRef = (TextView)rowView.findViewById(R.id.textViewOrderRef1);
+        tvOrderRef = (TextView)rowView.findViewById(R.id.textViewOrderRef2);
+        tvDatetime = (TextView)rowView.findViewById(R.id.textViewOrderDateTime2);
 
         OrderRecent currentItem = orders_recent.get(position);
 
-        tvOrderRef.setText(currentItem.getOrderRef()+"\nBooking time: "+currentItem.getDatetime());
+        tvOrderRef.setText(currentItem.getOrderRef());
+        tvDatetime.setText("Booking time: "+currentItem.getDatetime());
 
         if (position % 2 == 1) {
             rowView.setBackgroundColor(Color.rgb(254,245,245));

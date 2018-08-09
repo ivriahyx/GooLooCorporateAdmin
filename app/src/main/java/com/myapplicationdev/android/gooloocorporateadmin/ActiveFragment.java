@@ -145,7 +145,8 @@ public class ActiveFragment extends Fragment {
         //
 
         String email = activity.getEmail();
-        String restaurantname = activity.getRestaurantname();
+        String restaurantname = activity.getRestaurantName();
+        final String restaurantId = activity.getRestaurantId();
 
         Log.d("ActiveFragment","email: "+email);
         Log.d("ActiveFragment","restaurantname: "+restaurantname);
@@ -187,7 +188,7 @@ public class ActiveFragment extends Fragment {
 
                             //getOrders
                             RequestQueue queue = Volley.newRequestQueue(getActivity());
-                            String urlOrder ="http://ivriah.000webhostapp.com/gooloo/gooloo/retrieveOrderForCustomer.php?company="+company_name;
+                            String urlOrder ="http://ivriah.000webhostapp.com/gooloo/gooloo/retrieveOrderForCustomer.php?company="+company_name+"&m_id="+restaurantId;
                             //String urlOrder ="http://10.0.2.2/gooloo/retrieveOrderForCustomer.php?company="+company_name;
 
                             // Request a json response from the provided URL.
@@ -211,6 +212,9 @@ public class ActiveFragment extends Fragment {
 
                                                         Log.d("order","id: "+orderId+" orderRef: "+order_ref+" firstName: "+firstName+" lastName: "+lastName+" finalprice: "+finalPrice);
                                                         Order order = new Order(Integer.parseInt(orderId),order_ref, firstName, lastName, Double.parseDouble(finalPrice),customerId,bookingtime);
+
+
+
                                                         al.add(order);
 
 
@@ -260,6 +264,23 @@ public class ActiveFragment extends Fragment {
 
         // Add the request to the RequestQueue.
         queue.add(stringcompanyRequest);
+
+
+        //lv.setOnClick
+        lv_active.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+
+                int OrderId = al.get(position).getOrderId();
+                Intent intent = new Intent(getActivity(),OrderDetailsActivity.class);
+                intent.putExtra("OrderId",OrderId);
+                intent.putExtra("firstName",al.get(position).getFirstName());
+                intent.putExtra("lastName",al.get(position).getLastName());
+
+                startActivity(intent);
+            }
+        });
+
 
              return rootView;
     }
