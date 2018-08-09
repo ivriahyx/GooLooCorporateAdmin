@@ -42,6 +42,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Switch;
@@ -92,6 +94,8 @@ public class RecentFragment extends Fragment {
     OrderRecentAdapter aa_recent;
 
     String folderLocation;
+    ImageButton btnOrderSearch;
+    EditText etSearch;
 
     ClipboardManager myClipboard;
     public static RecentFragment newInstance(){
@@ -113,6 +117,9 @@ public class RecentFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_recent, container, false);
         ViewOrdersActivity activity = (ViewOrdersActivity) getActivity();
+
+        etSearch = (EditText)rootView.findViewById(R.id.etFilterRecent);
+        btnOrderSearch = (ImageButton)rootView.findViewById(R.id.btnSearchRecent);
 
         //file
 
@@ -240,18 +247,81 @@ public class RecentFragment extends Fragment {
         queue.add(stringcompanyRequest);
 
 
-
-
-
-        /*//Upon Clicking on the item in the listview
+        //lv.setOnClick
         lv_recent.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                al_recent.get(position).toString();
-                Log.d("list",al_recent.get(position).toString());
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+
+                int OrderId = al_recent.get(position).getOrderId();
+                Intent intent = new Intent(getActivity(),OrderDetailsActivity.class);
+                intent.putExtra("OrderId",OrderId);
+                intent.putExtra("firstName",al_recent.get(position).getFirstName());
+                intent.putExtra("lastName",al_recent.get(position).getLastName());
+
+                startActivity(intent);
             }
         });
-*/
+
+        btnOrderSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String orderRefSearch = etSearch.getText().toString();
+
+                //getOrders
+                RequestQueue queue = Volley.newRequestQueue(getActivity());
+                String urlOrder ="https://ivriah.000webhostapp.com/gooloo/gooloo/getOrderByOrderId.php?order_ref="+orderRefSearch;
+
+                // Request a json response from the provided URL.
+                StringRequest stringRequest = new StringRequest(Request.Method.GET, urlOrder,
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                try {
+                                    if(response.equals("[[]]")) {
+                                        al_recent.clear();
+                                    }else{
+                                        Log.d("Response", response.toString());
+                                        JSONArray jsonArray = new JSONArray(response.toString());
+                                        for (int i = 0; i < jsonArray.length(); i++) {
+                                            JSONObject jsonObject = jsonArray.getJSONObject(i);
+                                            String orderId = jsonObject.getString("id");
+                                            String order_ref = jsonObject.getString("order_ref");
+                                            String firstName = jsonObject.getString("first_name");
+                                            String lastName = jsonObject.getString("last_name");
+                                            String finalPrice = jsonObject.getString("final_price");
+                                            String customerId = jsonObject.getString("customer_id");
+                                            String bookingtime = jsonObject.getString("booking_time");
+
+                                            Log.d("order", "id: " + orderId + " orderRef: " + order_ref + " firstName: " + firstName + " lastName: " + lastName + " finalprice: " + finalPrice);
+                                            OrderRecent order = new OrderRecent(Integer.parseInt(orderId), order_ref, firstName, lastName, Double.parseDouble(finalPrice), customerId, bookingtime);
+
+                                            al_recent.clear();
+                                            al_recent.add(order);
+
+                                        }
+                                    }
+
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                    Log.d("Unsuccessful","Unsuccessful retriever");
+                                }
+                                aa_recent.notifyDataSetChanged();
+
+                            }
+                        }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("item", error.toString()+"");
+                        Toast toast = Toast.makeText(getActivity(), ""+error.toString(), Toast.LENGTH_LONG);
+                        toast.show();
+                    }
+                });
+
+                // Add the request to the RequestQueue.
+                queue.add(stringRequest);
+            }
+        });
+
         return rootView;
     }
 

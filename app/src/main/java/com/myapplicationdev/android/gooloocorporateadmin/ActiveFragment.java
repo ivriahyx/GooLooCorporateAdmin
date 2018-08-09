@@ -24,6 +24,7 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.pdf.PdfDocument;
+import android.media.Image;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -52,6 +53,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -104,6 +107,8 @@ public class ActiveFragment extends Fragment {
     OrderAdapter aa;
 
     TextView tvOrderRef;
+    EditText etSearch;
+    ImageButton btnSearchOrder;
 
     String folderLocation;
 
@@ -153,6 +158,8 @@ public class ActiveFragment extends Fragment {
 
         tvOrderRef = (TextView)rootView.findViewById(R.id.textViewOrderRef1);
         lv_active = (ListView)rootView.findViewById(R.id.lv_active);
+        etSearch = (EditText)rootView.findViewById(R.id.etFilter);
+        btnSearchOrder = (ImageButton) rootView.findViewById(R.id.btnSearch);
 
         aa = new OrderAdapter(getActivity(), R.layout.row_active_orders, al);
         aa.clear();
@@ -278,6 +285,67 @@ public class ActiveFragment extends Fragment {
                 intent.putExtra("lastName",al.get(position).getLastName());
 
                 startActivity(intent);
+            }
+        });
+
+        //btnSearch
+        btnSearchOrder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String orderRefSearch = etSearch.getText().toString();
+
+                //getOrders
+                RequestQueue queue = Volley.newRequestQueue(getActivity());
+                String urlOrder ="https://ivriah.000webhostapp.com/gooloo/gooloo/getOrderByOrderId.php?order_ref="+orderRefSearch;
+
+                // Request a json response from the provided URL.
+                StringRequest stringRequest = new StringRequest(Request.Method.GET, urlOrder,
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                try {
+                                    if(response.equals("[[]]")) {
+                                        al.clear();
+                                    }else{
+                                        Log.d("Response", response.toString());
+                                        JSONArray jsonArray = new JSONArray(response.toString());
+                                        for (int i = 0; i < jsonArray.length(); i++) {
+                                            JSONObject jsonObject = jsonArray.getJSONObject(i);
+                                            String orderId = jsonObject.getString("id");
+                                            String order_ref = jsonObject.getString("order_ref");
+                                            String firstName = jsonObject.getString("first_name");
+                                            String lastName = jsonObject.getString("last_name");
+                                            String finalPrice = jsonObject.getString("final_price");
+                                            String customerId = jsonObject.getString("customer_id");
+                                            String bookingtime = jsonObject.getString("booking_time");
+
+                                            Log.d("order", "id: " + orderId + " orderRef: " + order_ref + " firstName: " + firstName + " lastName: " + lastName + " finalprice: " + finalPrice);
+                                            Order order = new Order(Integer.parseInt(orderId), order_ref, firstName, lastName, Double.parseDouble(finalPrice), customerId, bookingtime);
+
+                                            al.clear();
+                                            al.add(order);
+
+                                        }
+                                    }
+
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                    Log.d("Unsuccessful","Unsuccessful retriever");
+                                }
+                                aa.notifyDataSetChanged();
+
+                            }
+                        }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d("item", error.toString()+"");
+                        Toast toast = Toast.makeText(getActivity(), ""+error.toString(), Toast.LENGTH_LONG);
+                        toast.show();
+                    }
+                });
+
+                // Add the request to the RequestQueue.
+                queue.add(stringRequest);
             }
         });
 
