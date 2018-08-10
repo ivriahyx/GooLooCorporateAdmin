@@ -74,7 +74,6 @@ public class ViewTeamActivity extends AppCompatActivity {
         //getTeam
         RequestQueue queue = Volley.newRequestQueue(ViewTeamActivity.this);
         String urlcompany ="http://ivriah.000webhostapp.com/gooloo/gooloo/getTeamMembers.php?company="+"National Label Company Asia PTE LTD";
-        //String urlcompany ="http://10.0.2.2/gooloo/getTeamMembers.php?company="+companyname;
         // Request a json response from the provided URL.
         StringRequest teamRequest = new StringRequest(Request.Method.GET, urlcompany,
                 new Response.Listener<String>() {

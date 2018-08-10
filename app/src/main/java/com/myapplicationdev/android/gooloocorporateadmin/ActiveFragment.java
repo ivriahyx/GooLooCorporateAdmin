@@ -110,7 +110,7 @@ public class ActiveFragment extends Fragment {
     EditText etSearch;
     ImageButton btnSearchOrder;
 
-    String folderLocation;
+    String folderLocation,msg;
 
     ClipboardManager myClipboard;
     public ActiveFragment(){ }
@@ -135,8 +135,6 @@ public class ActiveFragment extends Fragment {
 
 
         //file
-
-
         folderLocation = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download";
 
         File folder = new File(folderLocation);
@@ -146,7 +144,6 @@ public class ActiveFragment extends Fragment {
                 Log.d("File Read/Write", "Folder created");
             }
         }
-
         //
 
         String email = activity.getEmail();
@@ -349,7 +346,6 @@ public class ActiveFragment extends Fragment {
             }
         });
 
-
              return rootView;
     }
 
@@ -389,17 +385,18 @@ public class ActiveFragment extends Fragment {
                             try {
 
                                 JSONArray jsonArray = new JSONArray(response);
-                                Log.d("ActiveOrderDetails","JSONObj response : "+response);
+                                Log.d("ActiveOrderDetails", "JSONObj response : " + response);
 
-                                for (int i=0;i<jsonArray.length();i++) {
+                                for (int i = 0; i < jsonArray.length(); i++) {
                                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                                     String orderDetailId = jsonObject.getString("id");
                                     String itemName = jsonObject.getString("item_name");
                                     String unitPrice = jsonObject.getString("price");
 
-                                    createPDF("Order created by: "+firstName+" "+lastName+"\nItems: "+itemName+"\nUnit Price: $"+unitPrice+"\nTotal Price: $"+finalPrice+"\n",""+orderRef);
+                                    msg += "Order Reference Number: "+orderRef+"Order created by: " + firstName + " " + lastName + "\nItems: " + itemName + "\nUnit Price: $" + unitPrice + "\nTotal Price: $" + finalPrice+"\n\n";
                                 }
-
+                                createPDF(msg,orderRef+index);
+                                //createPDF("Order created by: "+firstName+" "+lastName+"\nItems: "+itemName+"\nUnit Price: $"+unitPrice+"\nTotal Price: $"+finalPrice+"\n",""+orderRef);
 
 
                             } catch (JSONException e) {
@@ -422,9 +419,6 @@ public class ActiveFragment extends Fragment {
             queue.add(orderDetailsRequest);
 
             Toast.makeText(getActivity(), "Invoice Successfully Downloaded", Toast.LENGTH_SHORT).show();
-
-            //openPDF(orderRef);
-
 
 
             return true;
@@ -528,12 +522,8 @@ public class ActiveFragment extends Fragment {
 
             document.add(new Paragraph(msg));
 
-
-
             document.add(new Chunk(lineSeparator));
             document.add(new Paragraph(""));
-
-
 
             document.close();
             Log.d("sss", "done");

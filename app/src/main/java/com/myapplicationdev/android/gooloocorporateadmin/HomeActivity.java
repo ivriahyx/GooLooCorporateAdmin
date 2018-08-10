@@ -59,6 +59,7 @@ public class HomeActivity extends AppCompatActivity {
         String firstName = user[3];
         String lastName = user[2];
         String email = user[1];
+
         tvFirstName.setText(" "+firstName);
         tvLastName.setText(" "+lastName);
         tvEmail.setText(""+email);
@@ -77,7 +78,6 @@ public class HomeActivity extends AppCompatActivity {
                             Log.d("HomeActivitygetCompany", response.toString());
 
                             JSONObject jsonObject = new JSONObject(response.toString());
-                            //Log.d("ActiveFragment","JSONObject response : "+ jsonArray.getJSONObject(0));
                             String id = jsonObject.getString("id");
                             Log.d("item", jsonObject.getString("id"));
                             String company_name = jsonObject.getString("company_name");
