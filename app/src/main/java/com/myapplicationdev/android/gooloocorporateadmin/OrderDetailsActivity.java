@@ -72,10 +72,12 @@ public class OrderDetailsActivity extends AppCompatActivity {
         String lastName = getIntent().getStringExtra("lastName");
         tvLabel.setText("Ordered by: "+firstName+" "+lastName);
 
+        String m_id = getIntent().getStringExtra("m_id");
+
         Log.d("OrderDetailId",orderId+"");
 //getOrderDetails
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="http://ivriah.000webhostapp.com/gooloo/gooloo/getOrderDetails.php?orderId=" + orderId;
+        String url ="http://ivriah.000webhostapp.com/gooloo/gooloo/getOrderDetails.php?orderId="+ orderId+"&m_id=";
 
         // Request a json response from the provided URL.
         StringRequest orderDetailsRequest = new StringRequest(Request.Method.GET, url,

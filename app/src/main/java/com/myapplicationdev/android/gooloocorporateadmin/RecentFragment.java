@@ -350,7 +350,7 @@ public class RecentFragment extends Fragment {
             final double finalPrice = al_recent.get(index_recent).getFinalPrice();
             final String orderRef = al_recent.get(index_recent).getOrderRef();
             RequestQueue queue = Volley.newRequestQueue(getActivity());
-            String url ="http://ivriah.000webhostapp.com/gooloo/gooloo/getOrderDetails.php?orderId=" + orderId;
+            String url ="http://ivriah.000webhostapp.com/gooloo/gooloo/getOrderDetails.php?orderId=" + orderId+"&m_id=";
 
             // Request a json response from the provided URL.
             StringRequest orderDetailsRequest = new StringRequest(Request.Method.GET, url,

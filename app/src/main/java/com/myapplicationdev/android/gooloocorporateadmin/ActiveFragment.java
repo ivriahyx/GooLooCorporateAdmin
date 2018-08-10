@@ -110,7 +110,8 @@ public class ActiveFragment extends Fragment {
     EditText etSearch;
     ImageButton btnSearchOrder;
 
-    String folderLocation,msg;
+    String folderLocation;
+    String msg="";
 
     ClipboardManager myClipboard;
     public ActiveFragment(){ }
@@ -202,7 +203,7 @@ public class ActiveFragment extends Fragment {
                                         public void onResponse(String response) {
                                             try {
                                                 if(response.toString()!=null){
-                                                    Log.d("ActiveFragmentLine149",response.toString());
+                                                    Log.d("ActiveFragmentLine206",response.toString());
                                                     JSONArray jsonArray = new JSONArray(response.toString());
                                                     for (int i=0;i<jsonArray.length();i++){
                                                         JSONObject jsonObject = jsonArray.getJSONObject(i);
@@ -214,8 +215,9 @@ public class ActiveFragment extends Fragment {
                                                         String customerId = jsonObject.getString("customer_id");
                                                         String bookingtime = jsonObject.getString("booking_time");
 
+
                                                         Log.d("order","id: "+orderId+" orderRef: "+order_ref+" firstName: "+firstName+" lastName: "+lastName+" finalprice: "+finalPrice);
-                                                        Order order = new Order(Integer.parseInt(orderId),order_ref, firstName, lastName, Double.parseDouble(finalPrice),customerId,bookingtime);
+                                                        Order order = new Order(Integer.parseInt(orderId),order_ref, firstName, lastName, Double.parseDouble(finalPrice),customerId,bookingtime,restaurantId);
 
 
 
@@ -280,6 +282,7 @@ public class ActiveFragment extends Fragment {
                 intent.putExtra("OrderId",OrderId);
                 intent.putExtra("firstName",al.get(position).getFirstName());
                 intent.putExtra("lastName",al.get(position).getLastName());
+                intent.putExtra("m_id",al.get(position).getM_id());
 
                 startActivity(intent);
             }
@@ -315,9 +318,10 @@ public class ActiveFragment extends Fragment {
                                             String finalPrice = jsonObject.getString("final_price");
                                             String customerId = jsonObject.getString("customer_id");
                                             String bookingtime = jsonObject.getString("booking_time");
+                                            String m_id = jsonObject.getString("m_id");
 
                                             Log.d("order", "id: " + orderId + " orderRef: " + order_ref + " firstName: " + firstName + " lastName: " + lastName + " finalprice: " + finalPrice);
-                                            Order order = new Order(Integer.parseInt(orderId), order_ref, firstName, lastName, Double.parseDouble(finalPrice), customerId, bookingtime);
+                                            Order order = new Order(Integer.parseInt(orderId), order_ref, firstName, lastName, Double.parseDouble(finalPrice), customerId, bookingtime,m_id);
 
                                             al.clear();
                                             al.add(order);
@@ -374,8 +378,9 @@ public class ActiveFragment extends Fragment {
             final String lastName = al.get(index).getLastName();
             final double finalPrice = al.get(index).getFinalPrice();
             final String orderRef = al.get(index).getOrderRef();
+            String m_id = al.get(index).getM_id();
             RequestQueue queue = Volley.newRequestQueue(getActivity());
-            String url ="http://ivriah.000webhostapp.com/gooloo/gooloo/getOrderDetails.php?orderId=" + orderId;
+            String url ="http://ivriah.000webhostapp.com/gooloo/gooloo/getOrderDetails.php?orderId="+ orderId+"&m_id=";
 
             // Request a json response from the provided URL.
             StringRequest orderDetailsRequest = new StringRequest(Request.Method.GET, url,
