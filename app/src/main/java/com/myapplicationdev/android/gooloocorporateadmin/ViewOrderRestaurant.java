@@ -57,13 +57,13 @@ public class ViewOrderRestaurant extends AppCompatActivity {
 
         //getRestaurant
         RequestQueue queue = Volley.newRequestQueue(ViewOrderRestaurant.this);
-        String urlcompany ="https://ivriah.000webhostapp.com/gooloo/gooloo/getRestaurantForOrders.php";
+        String urlcompany ="http://ivriah.000webhostapp.com/gooloo/gooloo/getRestaurantForOrders.php";
         // Request a json response from the provided URL.
         StringRequest restaurantRequest = new StringRequest(Request.Method.GET, urlcompany,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Log.d("ViewTeamActivty", "Response: "+response);
+                        Log.d("RestaurantActivity", "Response: "+response);
                         try {
                             JSONArray jsonArray = new JSONArray(response);
                             for(int i=0;i<jsonArray.length();i++){
@@ -84,7 +84,7 @@ public class ViewOrderRestaurant extends AppCompatActivity {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("ViewTeamActivtyError", error.toString()+"");
+                Log.d("ViewRestaurantError", error.toString()+"");
                 Toast toast = Toast.makeText(ViewOrderRestaurant.this, "No Restaurant found.", Toast.LENGTH_LONG);
                 toast.show();
             }
